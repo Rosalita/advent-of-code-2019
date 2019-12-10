@@ -10,61 +10,58 @@ import (
 
 func main() {
 
-	program, err := readInput("input.txt")
+	memory, err := readInput("input.txt")
 	if err != nil {
 		fmt.Println(err)
 	}
 
 	index := 0
-	for i := 0; i < len(program)-4; i += 4 {
-		input := getInput(index, program)
-		index += 4
+	for i := 0; i < len(memory)-4; i += 4 {
 
-		switch input[0] {
+		instructions := getInstruction(index, memory)
+	
+		opCode := instructions[0]
+		parameters := instructions[1:4]
+
+		switch opCode {
 		case 1:
-			add([]int{input[1], input[2], input[3]}, &program)
+			add(parameters, &memory)
 		case 2:
-			mult([]int{input[1], input[2], input[3]}, &program)
+			mult(parameters, &memory)
 		case 99:
 			fmt.Println("stopping")
-			fmt.Println(program)
+			fmt.Println(memory)
 		}
+		index += 4
+		
 	}
 
 }
 
-func add(values []int, program *[]int) {
-
-	prog := *program
-	val1 := prog[values[0]]
-	val2 := prog[values[1]]
-	result := val1 + val2
-	prog[values[2]] = result
-
-	*program = prog
+func add(params[]int, memory *[]int) {
+	mem := *memory
+	param1 := mem[params[0]]
+	param2 := mem[params[1]]
+	result := param1 + param2
+	mem[params[2]] = result
+	*memory = mem
 }
 
-func mult(values []int, program *[]int) {
-
-	prog := *program
-	val1 := prog[values[0]]
-	val2 := prog[values[1]]
-	result := val1 * val2
-	prog[values[2]] = result
-
-	*program = prog
+func mult(params[]int, memory *[]int) {
+	mem := *memory
+	param1 := mem[params[0]]
+	param2 := mem[params[1]]
+	result := param1 * param2
+	mem[params[2]] = result
+	*memory = mem
 }
 
-func getInput(startIndex int, program []int) []int {
-
-	output := []int{}
-
+func getInstruction(startIndex int, memory []int) []int {
+	instruction := []int{}
 	for i := 0; i < 4; i++ {
-		output = append(output, program[i+startIndex])
+		instruction = append(instruction, memory[i+startIndex])
 	}
-
-	return output
-
+	return instruction
 }
 
 func readInput(path string) (input []int, err error) {
@@ -75,7 +72,6 @@ func readInput(path string) (input []int, err error) {
 	defer file.Close()
 
 	data, err := ioutil.ReadAll(file)
-
 	strSlice := strings.Split(string(data), ",")
 
 	var intSlice []int
